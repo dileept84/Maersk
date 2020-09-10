@@ -1,0 +1,30 @@
+Q1 - SCENARIO
+A car rental company called FastCarz has a .net Web Application and Web API which are recently migrated from on-premise system to Azure cloud using Azure Web App Service
+and Web API Service.
+The on-premises system had 3 environments Dev, QA and Prod.
+The code repository was maintained in TFS and moved to Azure GIT now. The TFS has daily builds which triggers every night which build the solution and copy the build package to drop folder.
+deployments were done to the respective environment manually. The customer is planning to setup Azure DevOps service for below requirements:
+
+1)	The build should trigger as soon as anyone in the dev team checks in code to master branch.
+2) There will be test projects which will create and maintained in the solution along the Web and API. The trigger should build all the 3 projects - Web, API and test.
+   The build should not be successful if any test fails.
+3) The deployment of code and artifacts should be automated to Dev environment. 
+4) Upon successful deployment to the Dev environment, deployment should be easily promoted to QA and Prod through automated process.
+5) The deployments to QA and Prod should be enabled with Approvals from approvers only.
+
+Explain how each of the above the requirements will be met using Azure DevOps configuration.
+
+
+Steps with configuration details.
+
+1.	We can enable Continuous Integration trigger and include branch filter for which dev team checks in code (here we will include master branch).
+
+2.	We can use MSBuild/.Net Build task to Compile/Build the solution/Projects. Then we can add a task VSTEST to validate test cases, (If any test got failed build will going to fail).
+
+3.	We will go to Release tab under pipeline section and create a release pipeline to manage deployments to Azure. Then we edit the pipeline and add the Artifacts of CI build and enable Continuous Deployment trigger. After that we need to create a stage for eg. Dev and add tasks as required.
+
+4.	We need to create two more stages for eg.  QA and Prod. QA stage trigger should be After Dev stage and Prod stage trigger should be after QA stage. If Dev stage got failed build will not got to QA and same if QA stage got failed build will not go to Prod stage.
+
+We can trigger both QA and Prod after Dev stage for that we need to set the trigger of QA and Prod stage after Dev stage got succeeded (but this is not best practice to run QA and Prod stages parallelly).
+
+5.	We can achieve this by adding Post deployment Conditions for both QA and Dev (we need to enable post deployment approvals and add the approver for QA and Prod stage )
