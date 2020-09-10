@@ -1,0 +1,43 @@
+Q3 - SCENARIO
+A Toy Retail company ToyTrex has it retail application deployed as 3-tier application - Web App(UI), Web API(middle layer) and Database as Azure SQL.
+The user load started increasing multiple fold every month and complex programs getting implemented, the application started performing poorly.
+As a result, company decided to re-architect the middle layer as microservices using Azure Kubernetes Services.
+The new architecture has below design decisions.
+
+1) The middle layer should be implemented as Microservices using Azure AKS
+2) The middle layer API should be deployed as containerized application images
+3) The container images will use Azure Container Repository (ACR) as the private image repository
+4) The CI/CD pipelines for microservices should be implemented using Azure DevOps services.
+5) The Azure DevOps should be able to access ACR and download the container images for microservices deployment
+6) The image should be deployed as templates such as <image_name>:<build_id>
+
+Explain the DevOps configuration and steps in detail for above requirements
+
+Detailed steps:-
+
+1.	Create a sample Kubernetes project with web application and add Add Kubernetes support to a project (right click on project click add and select container orchestrator support and select Kubernetes as container orchestrator).
+
+2.	Create a custom or yml pipeline and add a step docker task to create a containerize application image for the project.
+
+3.	To use Azure Container Repository (ACR) as the private image repository we need to create a resource group and use it to create container registry, then go to pipeline and select the created container registry.
+Now get the registry credential and the login to docker registry and push the image to registry. We can use azure powershell/ CLI to login and push the image.
+
+4.	In CI pipeline
+•	Build the code.
+•	Run tests.
+•	Build the runtime container image.
+•	Push the container image to Azure Container Registry.
+•	Run helm package to package the Helm chart for the service
+•	Push the Helm package to Container Registry.
+In CD Pipeline
+o	Deploy the Helm chart to a QA environment.
+o	Add approver signs
+o	Retag the Docker image as a production image
+o	Deploy the Helm chart to the production environment.
+
+
+
+5.	Login to Azure container registry using ACR login command and pull the image using docker pull command.
+
+6.	In Pipeline provide a tag with $(Build.BuildId) so it will create build image like 
+<Image name: <tag name>>
